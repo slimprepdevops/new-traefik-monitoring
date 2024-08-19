@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.39.0
+    container_name: cadvisor
+    restart: "always"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cadvisor.entrypoints=web
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.c4.slimprepdevops.com`)"
+      - "traefik.http.routers.cadvisor.service=cadvisor"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=3000"
+      - "traefik.docker.network=proxy"
+
+networks:
+  default:
+    external:
+      name: proxy

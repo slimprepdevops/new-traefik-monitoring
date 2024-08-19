@@ -1,0 +1,40 @@
+version: '3.3'
+services:
+  traefik:
+    container_name: traefik
+    image: "traefik:v2.7"
+    restart: always
+    ports:
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    command:
+      - --providers.docker
+      - --entrypoints.web.address=:80
+      - --providers.docker.network=proxy
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --api.debug=true
+      - --log.level=DEBUG
+      - --metrics.prometheus=true
+      - --metrics.prometheus.buckets=0.1,0.3,1.2,5.0
+      - --entrypoints.web-secured.address=:443
+      - --entrypoints.web-secured.http.tls.certresolver=mytlschallenge
+      - --certificatesresolvers.mytlschallenge.acme.tlschallenge=true
+      - --certificatesresolvers.mytlschallenge.acme.email=devbeisong@gmail.com
+      - --certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json
+    labels:
+      - "traefik.http.routers.traefik.rule=Host(`traefik.c4.slimprepdevops.com`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$pn5FTKCp$$LUjM8bah4Ql6HcWgALMSc/" #password: password
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

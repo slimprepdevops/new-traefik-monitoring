@@ -1,0 +1,75 @@
+groups:
+  - name: DemoAlerts
+    rules:
+      - alert: InstanceDown 
+        expr: up{job="traefik"} == 1 
+        for: 1m
+        labels:
+          severity: low
+        annotations:
+          summary: 'Alert with low severity.'
+
+      - alert: InstanceDownCritical
+        expr: up{job="traefik"} == 1 
+        for: 1m 
+        labels:
+          severity: high
+        annotations:
+          summary: 'Alert with high severity.'
+  
+  - name: ActualAlerts
+    rules:
+      # Alert for any instance that is unreachable for >2 minutes.
+      - alert: service_down
+        expr: sum(up) < 3
+        for: 2m
+        labels:
+          severity: high
+        annotations:
+          summary: "One or more service is down"
+          description: "One or more service is down"
+          
+      - alert: moderate_cpu_usage
+        expr: sum(rate(container_cpu_system_seconds_total[1m])) > 0.20
+        for: 1m
+        labels:
+          severity: low
+        annotations:
+          summary: "CPU Usage is increasing"
+          description: "There seems to be much activity going on. Be advised"
+          
+      - alert: goapp-high-traffic
+        expr: rate(container_network_receive_bytes_total{name="goapp"}[1m]) > 30000
+        for: 2m
+        labels:
+          severity: high
+        annotations:
+          summary: "High traffic on GoApp"
+          description: "High traffic on goapp, consider scalling up"
+          
+      - alert: high_cpu_usage
+        expr: sum(rate(container_cpu_system_seconds_total[1m])) > 0.45
+        for: 4m
+        labels:
+          severity: high
+        annotations:
+          summary: "CPU Usage is high"
+          description: "There is high activity on you server. be advised"
+          
+      - alert: service_drop
+        expr: count(traefik_service_open_connections) < 7
+        for: 1m
+        labels:
+          severity: high
+        annotations:
+          summary: "CPU Usage is high"
+          description: "There is high activity on you server. be advised"
+          
+      - alert: high_request_inbound
+        expr: sum(increase(traefik_service_requests_total{protocol=~"http", code="200"}[1m])) > 3000
+        for: 1m
+        labels:
+          severity: high
+        annotations:
+          summary: "High request detected"
+          description: "System has detected a high number of request in one minute. be advised"

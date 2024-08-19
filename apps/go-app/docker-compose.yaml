@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  goapp:
+    container_name: goapp
+    build:
+      context: '.'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.goapp-http.entrypoints=web
+      - traefik.http.routers.goapp-http.rule=Host(`goapp.c4.slimprepdevops.com`)
+
+      - traefik.http.routers.goapp-http.middlewares=goapp-redirect-to-https
+      # HTTPS router
+      - traefik.http.routers.goapp-https.entrypoints=web-secured
+      - traefik.http.routers.goapp-https.rule=Host(`goapp.c4.slimprepdevops.com`)
+      - traefik.http.routers.goapp-https.tls=true
+      - traefik.http.routers.goapp-https.tls.certresolver=mytlschallenge
+      - traefik.http.middlewares.goapp-redirect-to-https.redirectscheme.scheme=https
+
+networks:
+  default:
+    external:
+      name: proxy

@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: nginx
+    image: nginx
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nginx-http.entrypoints=web
+      - traefik.http.routers.nginx-http.rule=Host(`nginx.c4.slimprepdevops.com`)
+      - traefik.http.routers.nginx-http.middlewares=nginx-redirect-to-https
+      # HTTPS router
+      - traefik.http.routers.nginx-https.entrypoints=web-secured
+      - traefik.http.routers.nginx-https.rule=Host(`nginx.c4.slimprepdevops.com`)
+      - traefik.http.routers.nginx-https.tls=true
+      - traefik.http.routers.nginx-https.tls.certresolver=mytlschallenge
+      - traefik.http.middlewares.nginx-redirect-to-https.redirectscheme.scheme=https
+
+networks:
+  default:
+    external:
+      name: proxy

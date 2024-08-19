@@ -1,0 +1,14 @@
+route:
+  receiver: 'mail'
+  repeat_interval: 1h
+  group_by: [ alertname ]
+
+receivers:
+  - name: 'mail'
+    email_configs:
+      - smarthost: 'smtp.gmail.com:465'
+        auth_username: 'icekidben@gmail.com'
+        auth_password: "gipeoqrtfdrvancp"
+        from: 'icekidben@gmail.com'
+        to: 'devbeisong@gmail.com'
+        require_tls: false

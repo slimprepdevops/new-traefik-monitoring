@@ -1,0 +1,26 @@
+version: '3.3'
+
+services:
+  alertmanager:
+    image: prom/alertmanager:v0.23.0
+    container_name: alertmanager
+    restart: always
+    ports:
+      - "9093:9093"
+    volumes:
+      - "./:/config"
+      - alertmanager-data:/data
+    command: --config.file=/config/alertmanager.yml --log.level=debug
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.alertmanager.entrypoints=web
+      - "traefik.http.routers.alertmanager.rule=Host(`alertmanager.c4.slimprepdevops.com`)"
+      - "traefik.docker.network=proxy"
+      
+volumes:
+  alertmanager-data: {}
+
+networks:
+  default:
+    external:
+      name: proxy

@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  weather:
+    container_name: weather
+    build:
+      context: '.'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.weather-http.entrypoints=web
+      - traefik.http.routers.weather-http.rule=Host(`weather.c4.slimprepdevops.com`)
+      - traefik.http.routers.weather-http.middlewares=weather-redirect-to-https
+      # HTTPS router
+      - traefik.http.routers.weather-https.entrypoints=web-secured
+      - traefik.http.routers.weather-https.rule=Host(`weather.c4.slimprepdevops.com`)
+      - traefik.http.routers.weather-https.tls=true
+      - traefik.http.routers.weather-https.tls.certresolver=mytlschallenge
+      - traefik.http.middlewares.weather-redirect-to-https.redirectscheme.scheme=https
+
+networks:
+  default:
+    external:
+      name: proxy
